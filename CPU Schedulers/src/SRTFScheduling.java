@@ -1,38 +1,57 @@
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Comparator;
 
-public class SRTFScheduling implements CPUScheduling{
+public class SRTFScheduling extends CPUScheduling{
+
+    public SRTFScheduling(List<Process> allProcesses) {
+        super(allProcesses);
+    }
+
     @Override
-    public void printExecutionOrder(List<Process> processes) {
-        PriorityQueue<Process> readyQueue = new PriorityQueue<>(new Comparator<Process>() {
-            @Override
-            public int compare(Process o1, Process o2) {
-                if (o1.burstTime < o2.burstTime) {
-                    return -1;
-                } else if (o1.burstTime > o2.burstTime) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
-        List<Process> finishedProcesses = new ArrayList<>();
+    public void printExecutionOrder() {
+        PriorityQueue<Process> readyQueue = new PriorityQueue<>(Comparator.comparingDouble(p -> p.remainingTime));
         double currentTime = 0;
-        while (finishedProcesses.size() < processes.size()) {
-            for (Process p : processes) {
-                if (p.arrivalTime <= currentTime && !finishedProcesses.contains(p)) {
-                    readyQueue.add(p);
+        Process currentProcess = null;
+
+        while (!allProcesses.isEmpty() || !readyQueue.isEmpty()) {
+            if (currentProcess != null) {
+                currentProcess.remainingTime--;
+                currentTime++;
+                if (currentProcess.remainingTime == 0) {
+                    currentProcess.finishTime = currentTime;
+                    finalProcesses.add(currentProcess);
+                    currentProcess = null;
                 }
             }
-            Process currentProcess = readyQueue.poll();
-            currentProcess.finishTime = currentTime + currentProcess.burstTime;
-            currentTime = currentProcess.finishTime;
-            finishedProcesses.add(currentProcess);
+            if (currentProcess == null) {
+                if (!readyQueue.isEmpty()) {
+                    currentProcess = readyQueue.poll();
+                }
+                else {
+                    currentTime++;
+                }
+            }
+            for (int i = 0; i < allProcesses.size(); i++) {
+                if (allProcesses.get(i).arrivalTime <= currentTime) {
+                    readyQueue.add(allProcesses.get(i));
+                    allProcesses.remove(i);
+                    i--;
+                }
+            }
+            if (currentProcess != null) {
+                if (!readyQueue.isEmpty() && readyQueue.peek().remainingTime < currentProcess.remainingTime) {
+                    readyQueue.add(currentProcess);
+                    currentProcess = readyQueue.poll();
+                }
+            }
         }
 
-
+//        for (Process p : finalProcesses) {
+//            System.out.println(p.name + " " + p.finishTime);
+//            System.out.println('\n');
+//        }
     }
 
     @Override
@@ -46,21 +65,21 @@ public class SRTFScheduling implements CPUScheduling{
         return waitingTime;
     }
     @Override
-    public double calculateAverageTurnaroundTime(List<Process> processes) {
+    public double calculateAverageTurnaroundTime() {
         double sum = 0;
-        for(Process p : processes) {
+        for(Process p : allProcesses) {
             sum += calculateTurnaroundTime(p);
         }
-        double avg = sum / processes.size();
+        double avg = sum / allProcesses.size();
         return avg;
     }
     @Override
-    public double calculateAverageWaitingTime(List<Process> processes) {
+    public double calculateAverageWaitingTime() {
         double sum = 0;
-        for(Process p : processes) {
+        for(Process p : allProcesses) {
             sum += calculateWaitingTime(p);
         }
-        double avg = sum / processes.size();
+        double avg = sum / allProcesses.size();
         return avg;
     }
 

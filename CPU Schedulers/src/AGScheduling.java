@@ -1,8 +1,14 @@
+import java.util.ArrayList;
 import java.util.List;
 
-public class AGScheduling implements CPUScheduling{
+public class AGScheduling extends CPUScheduling{
+
+    public AGScheduling(List<Process> allProcesses) {
+        super(allProcesses);
+    }
+
     @Override
-    public void printExecutionOrder(List<Process> processes) {
+    public void printExecutionOrder() {
 
     }
 
@@ -17,12 +23,12 @@ public class AGScheduling implements CPUScheduling{
     }
 
     @Override
-    public double calculateAverageTurnaroundTime(List<Process> processes) {
+    public double calculateAverageTurnaroundTime() {
         return 0;
     }
 
     @Override
-    public double calculateAverageWaitingTime(List<Process> processes) {
+    public double calculateAverageWaitingTime() {
         return 0;
     }
 }

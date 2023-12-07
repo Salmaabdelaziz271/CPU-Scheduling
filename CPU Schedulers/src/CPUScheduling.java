@@ -1,11 +1,17 @@
+import java.util.ArrayList;
 import java.util.List;
 
-public interface CPUScheduling {
-    void printExecutionOrder(List<Process> processes);
-    double calculateTurnaroundTime(Process process);
+public abstract class CPUScheduling {
+    List<Process> allProcesses = new ArrayList<>();
+    List<Process> finalProcesses = new ArrayList<>();
+    public CPUScheduling(List<Process> allProcesses) {
+        this.allProcesses = allProcesses;
+    }
+     abstract void printExecutionOrder();
+    abstract double calculateTurnaroundTime(Process process);
 
-    double calculateWaitingTime(Process process);
-    double calculateAverageTurnaroundTime(List<Process> processes) ;
+    abstract double calculateWaitingTime(Process process);
+    abstract double calculateAverageTurnaroundTime() ;
 
-    double calculateAverageWaitingTime(List<Process> processes);
+    abstract double calculateAverageWaitingTime();
 }
