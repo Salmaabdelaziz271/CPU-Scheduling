@@ -100,8 +100,4 @@ public class PriorityScheduling extends CPUScheduling{
         double avg = sum / finalProcesses.size();
         return avg;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 0f70eb9c0060ce41add9745093ab85f6e7b6c50f
