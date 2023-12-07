@@ -63,5 +63,11 @@ public class Main {
         System.out.println("\n\n print average waiting Time ");
         System.out.println(cpu.calculateAverageWaitingTime());
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 0f70eb9c0060ce41add9745093ab85f6e7b6c50f
     }
 }

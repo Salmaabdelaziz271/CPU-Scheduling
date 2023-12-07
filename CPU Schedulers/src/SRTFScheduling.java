@@ -7,6 +7,7 @@ public class SRTFScheduling extends CPUScheduling{
 
     public SRTFScheduling(List<Process> allProcesses) {
         super(allProcesses);
+<<<<<<< HEAD
         setExecutionOrder();
     }
     public void setExecutionOrder() {
@@ -16,6 +17,17 @@ public class SRTFScheduling extends CPUScheduling{
         Process currentProcess = null;
 
         while (finalProcesses.size() != allProcesses.size()) {
+=======
+    }
+
+    @Override
+    public void printExecutionOrder() {
+        PriorityQueue<Process> readyQueue = new PriorityQueue<>(Comparator.comparingDouble(p -> p.remainingTime));
+        double currentTime = 0;
+        Process currentProcess = null;
+
+        while (!allProcesses.isEmpty() || !readyQueue.isEmpty()) {
+>>>>>>> 0f70eb9c0060ce41add9745093ab85f6e7b6c50f
             if (currentProcess != null) {
                 currentProcess.remainingTime--;
                 currentTime++;
@@ -28,6 +40,7 @@ public class SRTFScheduling extends CPUScheduling{
             if (currentProcess == null) {
                 if (!readyQueue.isEmpty()) {
                     currentProcess = readyQueue.poll();
+<<<<<<< HEAD
                 } else {
                     currentTime++;
                 }
@@ -36,6 +49,17 @@ public class SRTFScheduling extends CPUScheduling{
                 if (tempProcesses.get(i).arrivalTime <= currentTime) {
                     readyQueue.add(tempProcesses.get(i));
                     tempProcesses.remove(i);
+=======
+                }
+                else {
+                    currentTime++;
+                }
+            }
+            for (int i = 0; i < allProcesses.size(); i++) {
+                if (allProcesses.get(i).arrivalTime <= currentTime) {
+                    readyQueue.add(allProcesses.get(i));
+                    allProcesses.remove(i);
+>>>>>>> 0f70eb9c0060ce41add9745093ab85f6e7b6c50f
                     i--;
                 }
             }
@@ -43,6 +67,7 @@ public class SRTFScheduling extends CPUScheduling{
                 if (!readyQueue.isEmpty() && readyQueue.peek().remainingTime < currentProcess.remainingTime) {
                     readyQueue.add(currentProcess);
                     currentProcess = readyQueue.poll();
+<<<<<<< HEAD
 
                 }
             }
@@ -56,6 +81,16 @@ public class SRTFScheduling extends CPUScheduling{
             System.out.println(p.name + " " + p.finishTime);
         }
 
+=======
+                }
+            }
+        }
+
+//        for (Process p : finalProcesses) {
+//            System.out.println(p.name + " " + p.finishTime);
+//            System.out.println('\n');
+//        }
+>>>>>>> 0f70eb9c0060ce41add9745093ab85f6e7b6c50f
     }
 
     @Override
