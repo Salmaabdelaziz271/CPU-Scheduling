@@ -39,5 +39,8 @@ public class Main {
             process = new Process(name , arrivalTime , burstTime , priority);
             allProcesses.add(process);
         }
+        System.out.println("\n");
+        CPUScheduling cpu = new PriorityScheduling(allProcesses);
+        //cpu.printExecutionOrder();
     }
 }

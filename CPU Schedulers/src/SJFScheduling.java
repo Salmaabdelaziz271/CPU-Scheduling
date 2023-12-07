@@ -1,9 +1,15 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class SJFScheduling implements CPUScheduling{
+    List<Process> allProcesses = new ArrayList<>();
+
+    public SJFScheduling(List<Process> allProcesses) {
+        this.allProcesses = allProcesses;
+    }
 
     @Override
-    public void printExecutionOrder(List<Process> processes) {
+    public void printExecutionOrder() {
 
     }
 

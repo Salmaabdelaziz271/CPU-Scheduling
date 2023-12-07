@@ -13,4 +13,13 @@ public class Process {
         this.burstTime = burstTime;
         this.priorityNum = priorityNum;
     }
+
+    public int getPriorityNum() {
+        return priorityNum;
+    }
+
+    public void printProcess(){
+        System.out.print(name + "     "+arrivalTime+"   "+burstTime+"   "+priorityNum+"   ");
+
+    }
 }
