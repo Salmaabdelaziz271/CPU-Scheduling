@@ -21,7 +21,11 @@ public class Process {
     }
 
     public void printProcess(){
-        System.out.print(name + "     " + arrivalTime + "   " + burstTime + "   " + priorityNum + "   ");
+        System.out.print(name + "        "+arrivalTime+"          "+burstTime+"           "+priorityNum+"   ");
 
+    }
+
+    public double getArrivalTime() {
+        return arrivalTime;
     }
 }

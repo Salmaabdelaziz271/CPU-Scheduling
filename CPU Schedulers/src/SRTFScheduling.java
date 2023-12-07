@@ -7,15 +7,15 @@ public class SRTFScheduling extends CPUScheduling{
 
     public SRTFScheduling(List<Process> allProcesses) {
         super(allProcesses);
+        setExecutionOrder();
     }
-
-    @Override
-    public void printExecutionOrder() {
+    public void setExecutionOrder() {
         PriorityQueue<Process> readyQueue = new PriorityQueue<>(Comparator.comparingDouble(p -> p.remainingTime));
-        double currentTime = 0;
+        List<Process> tempProcesses = new ArrayList<>(allProcesses);
+        double currentTime = -1;
         Process currentProcess = null;
 
-        while (!allProcesses.isEmpty() || !readyQueue.isEmpty()) {
+        while (finalProcesses.size() != allProcesses.size()) {
             if (currentProcess != null) {
                 currentProcess.remainingTime--;
                 currentTime++;
@@ -28,15 +28,14 @@ public class SRTFScheduling extends CPUScheduling{
             if (currentProcess == null) {
                 if (!readyQueue.isEmpty()) {
                     currentProcess = readyQueue.poll();
-                }
-                else {
+                } else {
                     currentTime++;
                 }
             }
-            for (int i = 0; i < allProcesses.size(); i++) {
-                if (allProcesses.get(i).arrivalTime <= currentTime) {
-                    readyQueue.add(allProcesses.get(i));
-                    allProcesses.remove(i);
+            for (int i = 0; i < tempProcesses.size(); i++) {
+                if (tempProcesses.get(i).arrivalTime <= currentTime) {
+                    readyQueue.add(tempProcesses.get(i));
+                    tempProcesses.remove(i);
                     i--;
                 }
             }
@@ -44,14 +43,19 @@ public class SRTFScheduling extends CPUScheduling{
                 if (!readyQueue.isEmpty() && readyQueue.peek().remainingTime < currentProcess.remainingTime) {
                     readyQueue.add(currentProcess);
                     currentProcess = readyQueue.poll();
+
                 }
             }
         }
+    }
 
-//        for (Process p : finalProcesses) {
-//            System.out.println(p.name + " " + p.finishTime);
-//            System.out.println('\n');
-//        }
+    @Override
+    public void printExecutionOrder() {
+        System.out.println("SRTF Scheduling");
+        for (Process p : finalProcesses) {
+            System.out.println(p.name + " " + p.finishTime);
+        }
+
     }
 
     @Override
