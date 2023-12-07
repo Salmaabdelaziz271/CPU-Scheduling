@@ -25,7 +25,7 @@ public class Main {
 
         for(int i=0 ;i<numOfProcesses ; i++){
             System.out.print("\n\n");
-            System.out.print(i+1);
+            System.out.print(i + 1);
             System.out.print(".\n");
             System.out.print("Enter process name: ");
             name = in.next();
@@ -48,13 +48,13 @@ public class Main {
 
         System.out.println("\n\n print Turnaround Time for all processes");
         for(Process p : allProcesses){
-            System.out.println(p.name + "   "+cpu.calculateTurnaroundTime(p));
+            System.out.println(p.name + "   " + cpu.calculateTurnaroundTime(p));
         }
 
         System.out.println("\n\n print waiting Time for all processes");
 
         for(Process p : allProcesses){
-            System.out.println(p.name + "   "+cpu.calculateWaitingTime(p));
+            System.out.println(p.name + "   " + cpu.calculateWaitingTime(p));
         }
 
         System.out.println("\n\n print average Turnaround Time ");
@@ -63,11 +63,5 @@ public class Main {
         System.out.println("\n\n print average waiting Time ");
         System.out.println(cpu.calculateAverageWaitingTime());
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 0f70eb9c0060ce41add9745093ab85f6e7b6c50f
     }
 }
