@@ -1,8 +1,14 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class AGScheduling implements CPUScheduling{
+    List<Process> allProcesses = new ArrayList<>();
+
+    public AGScheduling(List<Process> allProcesses) {
+        this.allProcesses = allProcesses;
+    }
     @Override
-    public void printExecutionOrder(List<Process> processes) {
+    public void printExecutionOrder() {
 
     }
 

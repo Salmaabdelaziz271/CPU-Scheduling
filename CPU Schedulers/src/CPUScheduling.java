@@ -1,7 +1,8 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public interface CPUScheduling {
-    void printExecutionOrder(List<Process> processes);
+    void printExecutionOrder();
     double calculateTurnaroundTime(Process process);
 
     double calculateWaitingTime(Process process);
