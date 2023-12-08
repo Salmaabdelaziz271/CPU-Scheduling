@@ -40,7 +40,7 @@ public class Main {
             allProcesses.add(process);
         }
         System.out.println("\n");
-        CPUScheduling cpu = new PriorityScheduling(allProcesses);
+        CPUScheduling cpu = new SRTFScheduling(allProcesses);
 
 
         //Priority Scheduling

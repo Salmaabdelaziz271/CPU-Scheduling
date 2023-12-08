@@ -4,6 +4,7 @@ import java.util.PriorityQueue;
 import java.util.Comparator;
 
 public class SRTFScheduling extends CPUScheduling{
+    List<ProcessInterval>processIntervals = new ArrayList<>();
 
     public SRTFScheduling(List<Process> allProcesses) {
         super(allProcesses);
@@ -14,7 +15,7 @@ public class SRTFScheduling extends CPUScheduling{
         List<Process> tempProcesses = new ArrayList<>(allProcesses);
         double currentTime = -1;
         Process currentProcess = null;
-
+        ProcessInterval processInterval = new ProcessInterval();
         while (finalProcesses.size() != allProcesses.size()) {
             if (currentProcess != null) {
                 currentProcess.remainingTime--;
@@ -22,12 +23,18 @@ public class SRTFScheduling extends CPUScheduling{
                 if (currentProcess.remainingTime == 0) {
                     currentProcess.finishTime = currentTime;
                     finalProcesses.add(currentProcess);
+                    processInterval.endTime = currentTime;
+                    processIntervals.add(processInterval);
+                    processInterval = new ProcessInterval();
                     currentProcess = null;
                 }
             }
             if (currentProcess == null) {
                 if (!readyQueue.isEmpty()) {
                     currentProcess = readyQueue.poll();
+                    processInterval.processName = currentProcess.name;
+                    processInterval.startTime = currentTime;
+
                 } else {
                     currentTime++;
                 }
@@ -41,9 +48,13 @@ public class SRTFScheduling extends CPUScheduling{
             }
             if (currentProcess != null) {
                 if (!readyQueue.isEmpty() && readyQueue.peek().remainingTime < currentProcess.remainingTime) {
+                    processInterval.endTime = currentTime;
+                    processIntervals.add(processInterval);
+                    processInterval = new ProcessInterval();
                     readyQueue.add(currentProcess);
                     currentProcess = readyQueue.poll();
-
+                    processInterval.processName = currentProcess.name;
+                    processInterval.startTime = currentTime;
                 }
             }
         }
@@ -51,9 +62,9 @@ public class SRTFScheduling extends CPUScheduling{
 
     @Override
     public void printExecutionOrder() {
-        System.out.println("SRTF Scheduling");
-        for (Process p : finalProcesses) {
-            System.out.println(p.name + " " + p.finishTime);
+        System.out.println("Process Name" + "       "+"Start Time"+"         "+"End Time");
+        for (ProcessInterval p : processIntervals) {
+           p.printProcessInterval();
         }
 
     }
@@ -88,4 +99,7 @@ public class SRTFScheduling extends CPUScheduling{
     }
 
 
+//    public void solveStarvation(){
+//
+//    }
 }
