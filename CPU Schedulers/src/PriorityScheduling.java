@@ -18,58 +18,76 @@ public class PriorityScheduling extends CPUScheduling{
     }
 
     public void priority(){
+        List<Process> temp = new ArrayList<>();
         Process first = arrivalPriorityQueue.poll();
         priorityQueue.add(first);
-        first.finishTime = cumulative + first.burstTime;
-        cumulative += first.burstTime;
-
-        Process prev = null;
         while (!arrivalPriorityQueue.isEmpty()){
-            prev = arrivalPriorityQueue.poll();
-            if(prev.arrivalTime == first.arrivalTime){
-                priorityQueue.add(prev);
-                prev.finishTime = cumulative + first.burstTime;
-                cumulative += first.burstTime;
+            if(arrivalPriorityQueue.peek().arrivalTime == first.arrivalTime){
+                priorityQueue.add(arrivalPriorityQueue.poll());
+            }
+            else if(priorityQueue.size() > 1){
+                while (!priorityQueue.isEmpty()){
+                    Process curr = priorityQueue.peek();
+                    curr.finishTime = cumulative + curr.burstTime;
+                    cumulative += curr.burstTime;
+                    double startTime = cumulative - curr.burstTime;
+                    temp.add(priorityQueue.poll());
+                    finalProcesses.add(new ProcessInterval(curr.name, startTime,curr.finishTime));
+                }
+            }
+            else if(priorityQueue.size() == 1){
+                Process single = priorityQueue.poll();
+                temp.add(single);
+                single.finishTime = cumulative + single.burstTime;
+                cumulative += single.burstTime;
+                double startTime = cumulative - single.burstTime;
+                finalProcesses.add(new ProcessInterval(single.name, startTime,single.finishTime));
+                while (!arrivalPriorityQueue.isEmpty()){
+                    Process p = arrivalPriorityQueue.peek();
+                    if(p.arrivalTime < cumulative){
+                        priorityQueue.add(p);
+                        arrivalPriorityQueue.poll();
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                while (!priorityQueue.isEmpty()){
+                    Process curr = priorityQueue.peek();
+                    curr.finishTime = cumulative + curr.burstTime;
+                    cumulative += curr.burstTime;
+                    temp.add(priorityQueue.poll());
+                    startTime = cumulative - curr.burstTime;
+                    finalProcesses.add(new ProcessInterval(curr.name, startTime,curr.finishTime));
+                }
+
             }
             else{
-                break;
+                priorityQueue.add(arrivalPriorityQueue.poll());
             }
         }
-        finalProcesses.addAll(priorityQueue);
-        arrivalPriorityQueue.add(prev);
-        priorityQueue.clear();
+        while (!priorityQueue.isEmpty()){
+            Process curr = priorityQueue.peek();
+            curr.finishTime = cumulative + curr.burstTime;
+            cumulative += curr.burstTime;
+            temp.add(priorityQueue.poll());
+            double startTime = cumulative - curr.burstTime;
+            finalProcesses.add(new ProcessInterval(curr.name, startTime,curr.finishTime));
 
-        while (!arrivalPriorityQueue.isEmpty()) {
-            Process curr = arrivalPriorityQueue.poll();
-            if (curr.arrivalTime < cumulative) {
-                priorityQueue.add(curr);
-            } else {
-                while (!priorityQueue.isEmpty()) {
-                    Process p = priorityQueue.poll();
-                    finalProcesses.add(p);
-                    p.finishTime = cumulative + p.burstTime;
-                    cumulative += p.burstTime;
-                }
-                priorityQueue.add(curr);
-            }
-        }
-
-        while (!priorityQueue.isEmpty()) {
-            Process p = priorityQueue.poll();
-            finalProcesses.add(p);
-            p.finishTime = cumulative + p.burstTime;
-            cumulative += p.burstTime;
         }
 
     }
 
+
+
     @Override
     public void printExecutionOrder() {
-        System.out.println("name" + "       "+"arrivalTime"+"     "+"burstTime"+"     "+"priorityNum"+"   ");
-        for(Process p : finalProcesses){
-            p.printProcess();
-            System.out.println('\n');
+        System.out.println("Process Name" + "       "+"Start Time"+"         "+"End Time");
+        for (ProcessInterval p : finalProcesses) {
+            p.printProcessInterval();
         }
+
     }
 
     @Override
@@ -85,19 +103,19 @@ public class PriorityScheduling extends CPUScheduling{
     @Override
     public double calculateAverageTurnaroundTime() {
         double sum = 0;
-        for(Process p : finalProcesses) {
+        for(Process p : allProcesses) {
             sum += calculateTurnaroundTime(p);
         }
-        double avg = sum / finalProcesses.size();
+        double avg = sum / allProcesses.size();
         return avg;
     }
     @Override
     public double calculateAverageWaitingTime() {
         double sum = 0;
-        for(Process p : finalProcesses) {
+        for(Process p : allProcesses) {
             sum += calculateWaitingTime(p);
         }
-        double avg = sum / finalProcesses.size();
+        double avg = sum / allProcesses.size();
         return avg;
     }
 }

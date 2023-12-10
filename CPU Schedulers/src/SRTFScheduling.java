@@ -4,7 +4,6 @@ import java.util.PriorityQueue;
 import java.util.Comparator;
 
 public class SRTFScheduling extends CPUScheduling{
-    List<ProcessInterval>processIntervals = new ArrayList<>();
 
     public SRTFScheduling(List<Process> allProcesses) {
         super(allProcesses);
@@ -16,15 +15,16 @@ public class SRTFScheduling extends CPUScheduling{
         double currentTime = -1;
         Process currentProcess = null;
         ProcessInterval processInterval = new ProcessInterval();
-        while (finalProcesses.size() != allProcesses.size()) {
+        int NumOfFinalProcesses = 0;
+        while (NumOfFinalProcesses != allProcesses.size()) {
             if (currentProcess != null) {
                 currentProcess.remainingTime--;
                 currentTime++;
                 if (currentProcess.remainingTime == 0) {
                     currentProcess.finishTime = currentTime;
-                    finalProcesses.add(currentProcess);
+                    NumOfFinalProcesses++;
                     processInterval.endTime = currentTime;
-                    processIntervals.add(processInterval);
+                    finalProcesses.add(processInterval);
                     processInterval = new ProcessInterval();
                     currentProcess = null;
                 }
@@ -49,7 +49,7 @@ public class SRTFScheduling extends CPUScheduling{
             if (currentProcess != null) {
                 if (!readyQueue.isEmpty() && readyQueue.peek().remainingTime < currentProcess.remainingTime) {
                     processInterval.endTime = currentTime;
-                    processIntervals.add(processInterval);
+                    finalProcesses.add(processInterval);
                     processInterval = new ProcessInterval();
                     readyQueue.add(currentProcess);
                     currentProcess = readyQueue.poll();
@@ -63,7 +63,7 @@ public class SRTFScheduling extends CPUScheduling{
     @Override
     public void printExecutionOrder() {
         System.out.println("Process Name" + "       "+"Start Time"+"         "+"End Time");
-        for (ProcessInterval p : processIntervals) {
+        for (ProcessInterval p : finalProcesses) {
            p.printProcessInterval();
         }
 
@@ -99,7 +99,4 @@ public class SRTFScheduling extends CPUScheduling{
     }
 
 
-//    public void solveStarvation(){
-//
-//    }
 }

@@ -3,7 +3,7 @@ import java.util.List;
 
 public abstract class CPUScheduling {
     List<Process> allProcesses = new ArrayList<>();
-    List<Process> finalProcesses = new ArrayList<>();
+    List<ProcessInterval> finalProcesses = new ArrayList<>();
     public CPUScheduling(List<Process> allProcesses) {
         this.allProcesses = allProcesses;
     }
