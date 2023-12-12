@@ -39,12 +39,19 @@ public class Main {
             process = new Process(name , arrivalTime , burstTime , priority);
             allProcesses.add(process);
         }
+
+        for (Process p: allProcesses){
+            p.quantum = timeQuantum;
+        }
+
         System.out.println("\n");
         CPUScheduling cpu = new PriorityScheduling(allProcesses);
+//        CPUScheduling cpu = new AGScheduling(allProcesses);
 
 
         //Priority Scheduling
         cpu.printExecutionOrder();
+
 
         System.out.println("\n\n print Turnaround Time for all processes");
         for(Process p : allProcesses){

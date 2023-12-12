@@ -7,6 +7,9 @@ public class Process {
     double finishTime;
     double remainingTime;
 
+    double AGFactor;
+    int quantum;
+
     public Process(String name, double arrivalTime, double burstTime, int priorityNum) {
         this.name = name;
         //this.color = color;
