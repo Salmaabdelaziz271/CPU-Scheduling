@@ -9,6 +9,8 @@ public class AGScheduling extends CPUScheduling{
 
     public AGScheduling(List<Process> allProcesses) {
         super(allProcesses);
+        addAG();
+        AGSchedule();
     }
 
     int RF(){
@@ -27,6 +29,35 @@ public class AGScheduling extends CPUScheduling{
         else{
             return (10 + currentProcess.arrivalTime + currentProcess.burstTime);
         }
+    }
+
+    private Process isProcessArrived(){
+        List<Process> sameArrival = new ArrayList<>();
+        for (Process process: processesList){
+            if (currentTime >= process.arrivalTime){
+                sameArrival.add(process);
+            }
+        }
+
+        // Choose the minimum AG-factor process
+        if (!sameArrival.isEmpty()) {
+            Process miniProcess = sameArrival.get(0);
+            for (Process process : sameArrival) {
+                if (process.AGFactor < miniProcess.AGFactor && process.arrivalTime <= miniProcess.arrivalTime) {
+                    miniProcess = process;
+                }
+            }
+            sameArrival.remove(miniProcess);
+            processesList.remove(miniProcess);
+
+            for (Process process : sameArrival) {
+                readyQueue.add(process);
+                sameArrival.remove(process);
+                processesList.remove(process);
+            }
+            return miniProcess;
+        }
+        return null;
     }
 
 
@@ -105,6 +136,7 @@ public class AGScheduling extends CPUScheduling{
                 break;
             }
 
+            // Finished its Job
             if (currentProcess.remainingTime == 0){
                 currentProcess.finishTime = currentTime;
                 finishedProcess.endTime = currentTime;
@@ -121,41 +153,22 @@ public class AGScheduling extends CPUScheduling{
 
 
             // Check if a new process arrived
-            List<Process> sameArrival = new ArrayList<>();
-            for (Process process: processesList){
-                if (currentTime >= process.arrivalTime){
-                    sameArrival.add(process);
+            Process arrivedProcess = isProcessArrived();
+            if (arrivedProcess != null){
+                // Continue working on the current process with the smaller AG factor
+                if (currentProcess.AGFactor < arrivedProcess.AGFactor) {
+                    readyQueue.add(arrivedProcess);
+                    processesList.remove(arrivedProcess);
                 }
-            }
-
-            // Choose the minimum AG-factor process
-            if (!sameArrival.isEmpty()){
-                Process miniProcess = sameArrival.get(0);
-                for (Process process: sameArrival){
-                    if (process.AGFactor < miniProcess.AGFactor && process.arrivalTime <= miniProcess.arrivalTime){
-                        miniProcess = process;
-                    }
-                }
-                sameArrival.remove(miniProcess);
-                processesList.remove(miniProcess);
-
-                for (Process process: sameArrival){
-                    readyQueue.add(process);
-                    sameArrival.remove(process);
-                    processesList.remove(process);
-                }
-                if (currentProcess.AGFactor < miniProcess.AGFactor) {
-                    readyQueue.add(miniProcess);
-                    processesList.remove(miniProcess);
-                }
+                // Switch to the arrived process with the smaller AG factor
                 else {
                     currentProcess.quantum += remainQuantum;
                     readyQueue.add(currentProcess);
                     finishedProcess.endTime = currentTime;
                     finalProcesses.add(finishedProcess);
-                    finishedProcess = new ProcessInterval(miniProcess.name, currentTime, -1);
-                    currentProcess = miniProcess;
-                    remainQuantum = miniProcess.quantum;
+                    finishedProcess = new ProcessInterval(arrivedProcess.name, currentTime, -1);
+                    currentProcess = arrivedProcess;
+                    remainQuantum = arrivedProcess.quantum;
                     return currentProcess;
                 }
             }
@@ -208,44 +221,31 @@ public class AGScheduling extends CPUScheduling{
                 readyQueue.remove(process);
                 handleAGSchedule(process);
             }
+            else{
+                // Check if a new process has arrived
+                if (!processesList.isEmpty()){
+                    Process arrivedProcess = isProcessArrived();
+                    if (arrivedProcess != null){
+                        handleAGSchedule(arrivedProcess);
+                    }
+                }
+            }
 
         }
     }
 
     public void AGSchedule(){
 
-        // Get all the processes with the same arrival time
-        List<Process> sameArrival = new ArrayList<>();
-        for (Process process: processesList){
-            if (currentTime >= process.arrivalTime){
-                sameArrival.add(process);
-            }
+        Process arrivedProcess = isProcessArrived();
+        if (arrivedProcess != null){
+            handleAGSchedule(arrivedProcess);
         }
-
-        // Choose the minimum AG-factor process
-        Process miniProcess = sameArrival.get(0);
-        for (Process process: sameArrival){
-            if (process.AGFactor < miniProcess.AGFactor && process.arrivalTime <= miniProcess.arrivalTime){
-                miniProcess = process;
-            }
-        }
-        sameArrival.remove(miniProcess);
-        processesList.remove(miniProcess);
-
-        for (Process process: sameArrival){
-            readyQueue.add(process);
-            sameArrival.remove(process);
-            processesList.remove(process);
-        }
-        handleAGSchedule(miniProcess);
     }
 
 
 
     @Override
     public void printExecutionOrder() {
-        addAG();
-        AGSchedule();
         System.out.println("Process Name" + "       "+"Start Time"+"         "+"End Time");
         for (ProcessInterval p : finalProcesses) {
             p.printProcessInterval();
