@@ -90,32 +90,5 @@ public class PriorityScheduling extends CPUScheduling{
 
     }
 
-    @Override
-    public double calculateTurnaroundTime(Process process) {
-        double turnaroundTime = process.finishTime - process.arrivalTime;
-        return turnaroundTime;
-    }
-    @Override
-    public double calculateWaitingTime(Process process) {
-        double waitingTime = calculateTurnaroundTime(process) - process.burstTime;
-        return waitingTime;
-    }
-    @Override
-    public double calculateAverageTurnaroundTime() {
-        double sum = 0;
-        for(Process p : allProcesses) {
-            sum += calculateTurnaroundTime(p);
-        }
-        double avg = sum / allProcesses.size();
-        return avg;
-    }
-    @Override
-    public double calculateAverageWaitingTime() {
-        double sum = 0;
-        for(Process p : allProcesses) {
-            sum += calculateWaitingTime(p);
-        }
-        double avg = sum / allProcesses.size();
-        return avg;
-    }
+
 }

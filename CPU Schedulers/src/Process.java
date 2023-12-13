@@ -27,6 +27,9 @@ public class Process {
         System.out.print(name + "        "+arrivalTime+"          "+burstTime+"           "+priorityNum+"   ");
 
     }
+    public double getBurstTime() {
+        return burstTime;
+    }
 
     public double getArrivalTime() {
         return arrivalTime;

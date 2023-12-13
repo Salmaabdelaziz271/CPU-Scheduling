@@ -8,10 +8,31 @@ public abstract class CPUScheduling {
         this.allProcesses = allProcesses;
     }
      abstract void printExecutionOrder();
-    abstract double calculateTurnaroundTime(Process process);
+    public double calculateTurnaroundTime(Process process) {
+        double turnaroundTime = process.finishTime - process.arrivalTime;
+        return turnaroundTime;
+    }
 
-    abstract double calculateWaitingTime(Process process);
-    abstract double calculateAverageTurnaroundTime() ;
+    public double calculateWaitingTime(Process process) {
+        double waitingTime = calculateTurnaroundTime(process) - process.burstTime;
+        return waitingTime;
+    }
 
-    abstract double calculateAverageWaitingTime();
+    public double calculateAverageTurnaroundTime() {
+        double sum = 0;
+        for(Process p : allProcesses) {
+            sum += calculateTurnaroundTime(p);
+        }
+        double avg = sum / allProcesses.size();
+        return avg;
+    }
+
+    public double calculateAverageWaitingTime() {
+        double sum = 0;
+        for(Process p : allProcesses) {
+            sum += calculateWaitingTime(p);
+        }
+        double avg = sum / allProcesses.size();
+        return avg;
+    }
 }
