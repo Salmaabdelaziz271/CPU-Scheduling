@@ -62,10 +62,10 @@ public class AGScheduling extends CPUScheduling{
 
 
     public void addAG(){
-//        allProcesses.get(0).AGFactor = 20;
-//        allProcesses.get(1).AGFactor = 17;
-//        allProcesses.get(2).AGFactor = 16;
-//        allProcesses.get(3).AGFactor = 43;
+//        allProcesses.get(0).AGFactor = 27;
+//        allProcesses.get(1).AGFactor = 9;
+//        allProcesses.get(2).AGFactor = 24;
+//        allProcesses.get(3).AGFactor = 41;
 
 
         for (Process process: allProcesses) {
@@ -235,7 +235,6 @@ public class AGScheduling extends CPUScheduling{
     }
 
     public void AGSchedule(){
-
         Process arrivedProcess = isProcessArrived();
         if (arrivedProcess != null){
             handleAGSchedule(arrivedProcess);
@@ -252,32 +251,5 @@ public class AGScheduling extends CPUScheduling{
         }
     }
 
-    public double calculateTurnaroundTime(Process process) {
-        double turnaroundTime = process.finishTime - process.arrivalTime;
-        return turnaroundTime;
-    }
-    @Override
-    public double calculateWaitingTime(Process process) {
-        double waitingTime = calculateTurnaroundTime(process) - process.burstTime;
-        return waitingTime;
-    }
-    @Override
-    public double calculateAverageTurnaroundTime() {
-        double sum = 0;
-        for(Process p : allProcesses) {
-            sum += calculateTurnaroundTime(p);
-        }
-        double avg = sum / allProcesses.size();
-        return avg;
-    }
-    @Override
-    public double calculateAverageWaitingTime() {
-        double sum = 0;
-        for(Process p : allProcesses) {
-            sum += calculateWaitingTime(p);
-        }
-        double avg = sum / allProcesses.size();
-        return avg;
-    }
 
 }
