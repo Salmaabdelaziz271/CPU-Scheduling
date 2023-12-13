@@ -4,6 +4,7 @@ import static java.lang.Math.ceil;
 
 public class AGScheduling extends CPUScheduling{
     private List<Process> readyQueue = new ArrayList<>();
+    private List<Process> processesList = new ArrayList<>();
     private int currentTime = 0;
 
     public AGScheduling(List<Process> allProcesses) {
@@ -30,86 +31,152 @@ public class AGScheduling extends CPUScheduling{
 
 
     public void addAG(){
+//        allProcesses.get(0).AGFactor = 20;
+//        allProcesses.get(1).AGFactor = 17;
+//        allProcesses.get(2).AGFactor = 16;
+//        allProcesses.get(3).AGFactor = 43;
+
+
         for (Process process: allProcesses) {
             process.AGFactor = calculateAGFactor(process);
             process.remainingTime = process.burstTime;
+            processesList.add(process);
         }
+
     }
 
 
-    public boolean nonPreemptive(Process currentProcess, ProcessInterval finishedProcess, double halfQuantum){
+    public boolean nonPreemptive(Process currentProcess, ProcessInterval finishedProcess){
+        double halfQuantum = ceil(currentProcess.quantum / 2);
+
+        // The Remaining Time is more than half the quantum time
         if (halfQuantum < currentProcess.remainingTime){
             currentTime += halfQuantum;
             currentProcess.remainingTime -= halfQuantum;
             return false;
         }
+        // The process will finish in its half quantum time
         else{
             currentTime += currentProcess.remainingTime;
             currentProcess.remainingTime = 0;
             finishedProcess.endTime = currentTime;
             finalProcesses.add(finishedProcess);
+            readyQueue.remove(currentProcess);
             return true;
         }
+    }
+
+    private double getQuantumMean(Process currentProcess){
+        double mean = currentProcess.quantum;
+        for (Process process: readyQueue){
+            mean += process.quantum;
+        }
+        mean /= readyQueue.size() + 1;
+        return mean;
     }
 
     public Process preemptive(Process currentProcess, ProcessInterval finishedProcess, double remainQuantum){
 
         double counter = currentProcess.quantum - remainQuantum;
         while (true){
+
             // Finished its quantum time
             if(counter == currentProcess.quantum){
+                // But didn't finish its job
                 if (currentProcess.remainingTime != 0){
+                    double value = ceil(0.1 * getQuantumMean(currentProcess));
+                    currentProcess.quantum += value;
                     readyQueue.add(currentProcess);
+                }
+                // And finished its job
+                else{
+                    currentProcess.quantum = 0;
+                    currentProcess.finishTime = currentTime;
                 }
                 finishedProcess.endTime = currentTime;
                 finalProcesses.add(finishedProcess);
+                if (readyQueue.isEmpty() && processesList.isEmpty()){
+                    return null;
+                }
+                if (!readyQueue.isEmpty()){
+                    currentProcess = readyQueue.get(0);
+                    readyQueue.remove(currentProcess);
+                }
                 break;
             }
 
             if (currentProcess.remainingTime == 0){
-                if (readyQueue.isEmpty() && allProcesses.isEmpty()){
-                    return null;
-                }
+                currentProcess.finishTime = currentTime;
                 finishedProcess.endTime = currentTime;
                 finalProcesses.add(finishedProcess);
+                if (readyQueue.isEmpty() && processesList.isEmpty()){
+                    return null;
+                }
+                if (!readyQueue.isEmpty()){
+                    currentProcess = readyQueue.get(0);
+                    readyQueue.remove(currentProcess);
+                }
                 break;
             }
 
 
             // Check if a new process arrived
-            for (Process process: allProcesses) {
-                if (process.arrivalTime <= currentTime) {
-                    if (currentProcess.AGFactor < process.AGFactor) {
-                        readyQueue.add(process);
-                    }
-                    else {
-                        currentProcess.quantum += remainQuantum;
-                        readyQueue.add(currentProcess);
-                        finishedProcess.endTime = currentTime;
-                        finalProcesses.add(finishedProcess);
-                        finishedProcess = new ProcessInterval(process.name, currentTime, -1);
-                        currentProcess = process;
-                        remainQuantum = process.quantum;
-                        return currentProcess;
-                    }
+            List<Process> sameArrival = new ArrayList<>();
+            for (Process process: processesList){
+                if (currentTime >= process.arrivalTime){
+                    sameArrival.add(process);
                 }
             }
 
-            // Check if there is a process in the ready queue that has smaller AG factor
-            Process miniProcess = currentProcess;
-            for (Process process: readyQueue){
-                if (process.AGFactor < miniProcess.AGFactor){
-                    miniProcess = process;
+            // Choose the minimum AG-factor process
+            if (!sameArrival.isEmpty()){
+                Process miniProcess = sameArrival.get(0);
+                for (Process process: sameArrival){
+                    if (process.AGFactor < miniProcess.AGFactor && process.arrivalTime <= miniProcess.arrivalTime){
+                        miniProcess = process;
+                    }
+                }
+                sameArrival.remove(miniProcess);
+                processesList.remove(miniProcess);
+
+                for (Process process: sameArrival){
+                    readyQueue.add(process);
+                    sameArrival.remove(process);
+                    processesList.remove(process);
+                }
+                if (currentProcess.AGFactor < miniProcess.AGFactor) {
+                    readyQueue.add(miniProcess);
+                    processesList.remove(miniProcess);
+                }
+                else {
+                    currentProcess.quantum += remainQuantum;
+                    readyQueue.add(currentProcess);
+                    finishedProcess.endTime = currentTime;
+                    finalProcesses.add(finishedProcess);
+                    finishedProcess = new ProcessInterval(miniProcess.name, currentTime, -1);
+                    currentProcess = miniProcess;
+                    remainQuantum = miniProcess.quantum;
+                    return currentProcess;
                 }
             }
-            if (miniProcess != currentProcess){
+
+
+            // Check if there is a process in the ready queue that has smaller AG factor
+            Process minProcess = currentProcess;
+            for (Process process: readyQueue){
+                if (process.AGFactor < minProcess.AGFactor){
+                    minProcess = process;
+                }
+            }
+            if (minProcess != currentProcess){
+                readyQueue.remove(minProcess);
                 currentProcess.quantum += remainQuantum;
                 readyQueue.add(currentProcess);
                 finishedProcess.endTime = currentTime;
                 finalProcesses.add(finishedProcess);
-                finishedProcess = new ProcessInterval(miniProcess.name, currentTime, -1);
-                currentProcess = miniProcess;
-                remainQuantum = miniProcess.quantum;
+                finishedProcess = new ProcessInterval(minProcess.name, currentTime, -1);
+                currentProcess = minProcess;
+                remainQuantum = minProcess.quantum;
                 return currentProcess;
             }
 
@@ -129,20 +196,19 @@ public class AGScheduling extends CPUScheduling{
 
         double halfQuantum = ceil(current.quantum / 2);
         ProcessInterval finishedProcess = new ProcessInterval(current.name, currentTime, -1);
-        if (!nonPreemptive(current, finishedProcess, halfQuantum)){
+        if (!nonPreemptive(current, finishedProcess)){
             Process process = preemptive(current, finishedProcess, current.quantum - halfQuantum);
-            allProcesses.remove(process);
+            processesList.remove(process);
             handleAGSchedule(process);
         }
         else{
-            Process miniProcess = readyQueue.get(0);
-            for (Process process: readyQueue){
-                if (process.AGFactor < miniProcess.AGFactor){
-                    miniProcess = process;
-                }
+            current.finishTime = currentTime;
+            if (!readyQueue.isEmpty()){
+                Process process = readyQueue.get(0);
+                readyQueue.remove(process);
+                handleAGSchedule(process);
             }
-            readyQueue.remove(miniProcess);
-            handleAGSchedule(miniProcess);
+
         }
     }
 
@@ -150,12 +216,13 @@ public class AGScheduling extends CPUScheduling{
 
         // Get all the processes with the same arrival time
         List<Process> sameArrival = new ArrayList<>();
-        for (Process process: allProcesses){
+        for (Process process: processesList){
             if (currentTime >= process.arrivalTime){
                 sameArrival.add(process);
             }
         }
 
+        // Choose the minimum AG-factor process
         Process miniProcess = sameArrival.get(0);
         for (Process process: sameArrival){
             if (process.AGFactor < miniProcess.AGFactor && process.arrivalTime <= miniProcess.arrivalTime){
@@ -163,23 +230,14 @@ public class AGScheduling extends CPUScheduling{
             }
         }
         sameArrival.remove(miniProcess);
-        allProcesses.remove(miniProcess);
+        processesList.remove(miniProcess);
+
         for (Process process: sameArrival){
             readyQueue.add(process);
             sameArrival.remove(process);
-            allProcesses.remove(process);
+            processesList.remove(process);
         }
-
-        double halfQuantum = ceil(miniProcess.quantum / 2);
-        ProcessInterval finishedProcess = new ProcessInterval(miniProcess.name, currentTime, -1);
-        if (!nonPreemptive(miniProcess, finishedProcess, halfQuantum)){
-            Process process = preemptive(miniProcess, finishedProcess, miniProcess.quantum - halfQuantum);
-            if (process != null){
-                allProcesses.remove(process);
-                handleAGSchedule(process);
-            }
-
-        }
+        handleAGSchedule(miniProcess);
     }
 
 
@@ -188,30 +246,38 @@ public class AGScheduling extends CPUScheduling{
     public void printExecutionOrder() {
         addAG();
         AGSchedule();
+        System.out.println("Process Name" + "       "+"Start Time"+"         "+"End Time");
+        for (ProcessInterval p : finalProcesses) {
+            p.printProcessInterval();
+        }
     }
 
-    @Override
     public double calculateTurnaroundTime(Process process) {
-        return 0;
+        double turnaroundTime = process.finishTime - process.arrivalTime;
+        return turnaroundTime;
     }
-
     @Override
     public double calculateWaitingTime(Process process) {
-        return 0;
+        double waitingTime = calculateTurnaroundTime(process) - process.burstTime;
+        return waitingTime;
     }
-
     @Override
     public double calculateAverageTurnaroundTime() {
-        return 0;
+        double sum = 0;
+        for(Process p : allProcesses) {
+            sum += calculateTurnaroundTime(p);
+        }
+        double avg = sum / allProcesses.size();
+        return avg;
     }
-
     @Override
     public double calculateAverageWaitingTime() {
-        return 0;
+        double sum = 0;
+        for(Process p : allProcesses) {
+            sum += calculateWaitingTime(p);
+        }
+        double avg = sum / allProcesses.size();
+        return avg;
     }
 
-
-    // HANDLE REMOVING FROM READY QUEUE
-    // HALF QUANTUM UPDATING
-    // REMAINING CASES --> EDITING QUANTUM VALUES
 }

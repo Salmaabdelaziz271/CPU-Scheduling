@@ -8,7 +8,7 @@ public class Process {
     double remainingTime;
 
     double AGFactor;
-    int quantum;
+    double quantum;
 
     public Process(String name, double arrivalTime, double burstTime, int priorityNum) {
         this.name = name;
