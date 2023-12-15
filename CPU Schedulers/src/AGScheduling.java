@@ -65,14 +65,14 @@ public class AGScheduling extends CPUScheduling{
 
 
     private void addAG(){
-        allProcesses.get(0).AGFactor = 20;
-        allProcesses.get(1).AGFactor = 19;
-        allProcesses.get(2).AGFactor = 18;
-        allProcesses.get(3).AGFactor = 17;
+//        allProcesses.get(0).AGFactor = 20;
+//        allProcesses.get(1).AGFactor = 17;
+//        allProcesses.get(2).AGFactor = 16;
+//        allProcesses.get(3).AGFactor = 43;
 
 
         for (Process process: allProcesses) {
-//            process.AGFactor = calculateAGFactor(process);
+            process.AGFactor = calculateAGFactor(process);
             process.remainingTime = process.burstTime;
             processesList.add(process);
         }

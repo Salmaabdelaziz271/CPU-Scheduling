@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Scanner;
 
 public class Main {
@@ -46,29 +45,29 @@ public class Main {
         }
 
         System.out.println("\n");
-//        CPUScheduling cpu = new PriorityScheduling(allProcesses);
-        CPUScheduling cpu = new AGScheduling(allProcesses);
+        CPUScheduling cpu = new PriorityScheduling(allProcesses);
+        //CPUScheduling cpu = new SRTFScheduling(allProcesses);
 
 
         //Priority Scheduling
         cpu.printExecutionOrder();
 
 
-        System.out.println("\n\nPrint Turnaround Time for all processes");
+        System.out.println("\n\n print Turnaround Time for all processes");
         for(Process p : allProcesses){
             System.out.println(p.name + "   " + cpu.calculateTurnaroundTime(p));
         }
 
-        System.out.println("\n\nPrint waiting Time for all processes");
+        System.out.println("\n\n print waiting Time for all processes");
 
         for(Process p : allProcesses){
             System.out.println(p.name + "   " + cpu.calculateWaitingTime(p));
         }
 
-        System.out.println("\n\nPrint average Turnaround Time ");
+        System.out.println("\n\n print average Turnaround Time ");
         System.out.println(cpu.calculateAverageTurnaroundTime());
 
-        System.out.println("\n\nPrint average waiting Time ");
+        System.out.println("\n\n print average waiting Time ");
         System.out.println(cpu.calculateAverageWaitingTime());
 
     }

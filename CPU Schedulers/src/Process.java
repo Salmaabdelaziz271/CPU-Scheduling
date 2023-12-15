@@ -9,6 +9,7 @@ public class Process {
 
     double AGFactor;
     double quantum;
+    double STRFStarvationSolver;
 
     public Process(String name, double arrivalTime, double burstTime, int priorityNum) {
         this.name = name;
@@ -16,7 +17,7 @@ public class Process {
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
         this.priorityNum = priorityNum;
-        remainingTime = burstTime;
+        remainingTime = STRFStarvationSolver = burstTime;
     }
 
     public int getPriorityNum() {
@@ -33,5 +34,9 @@ public class Process {
 
     public double getArrivalTime() {
         return arrivalTime;
+    }
+
+    public double getSTRFStarvationSolver() {
+        return STRFStarvationSolver;
     }
 }

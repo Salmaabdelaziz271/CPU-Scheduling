@@ -18,7 +18,6 @@ public class PriorityScheduling extends CPUScheduling{
     }
 
     public void priority(){
-        List<Process> temp = new ArrayList<>();
         Process first = arrivalPriorityQueue.poll();
         priorityQueue.add(first);
         while (!arrivalPriorityQueue.isEmpty()){
@@ -27,24 +26,39 @@ public class PriorityScheduling extends CPUScheduling{
             }
             else if(priorityQueue.size() > 1){
                 while (!priorityQueue.isEmpty()){
-                    Process curr = priorityQueue.peek();
+                    Process curr = priorityQueue.poll();
                     curr.finishTime = cumulative + curr.burstTime;
                     cumulative += curr.burstTime;
                     double startTime = cumulative - curr.burstTime;
-                    temp.add(priorityQueue.poll());
                     finalProcesses.add(new ProcessInterval(curr.name, startTime,curr.finishTime));
+                    updateStarvationSolver(priorityQueue, cumulative);
+                    while (!arrivalPriorityQueue.isEmpty()){
+                        Process p = arrivalPriorityQueue.peek();
+                        if(p.arrivalTime <= cumulative){
+                            priorityQueue.add(p);
+                            arrivalPriorityQueue.poll();
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    for(Process p: priorityQueue) {
+                        System.out.println(p.name + " " + cumulative);
+                    }
+                    System.out.println("------------------");
+
                 }
             }
             else if(priorityQueue.size() == 1){
                 Process single = priorityQueue.poll();
-                temp.add(single);
                 single.finishTime = cumulative + single.burstTime;
                 cumulative += single.burstTime;
                 double startTime = cumulative - single.burstTime;
                 finalProcesses.add(new ProcessInterval(single.name, startTime,single.finishTime));
+                updateStarvationSolver(priorityQueue, cumulative);
                 while (!arrivalPriorityQueue.isEmpty()){
                     Process p = arrivalPriorityQueue.peek();
-                    if(p.arrivalTime < cumulative){
+                    if(p.arrivalTime <= cumulative){
                         priorityQueue.add(p);
                         arrivalPriorityQueue.poll();
                     }
@@ -52,26 +66,41 @@ public class PriorityScheduling extends CPUScheduling{
                         break;
                     }
                 }
+                for(Process p: priorityQueue) {
+                    System.out.println(p.name + " " + cumulative);
+                }
+                System.out.println("------------------");
 
                 while (!priorityQueue.isEmpty()){
-                    Process curr = priorityQueue.peek();
+                    Process curr = priorityQueue.poll();
                     curr.finishTime = cumulative + curr.burstTime;
                     cumulative += curr.burstTime;
-                    temp.add(priorityQueue.poll());
                     startTime = cumulative - curr.burstTime;
                     finalProcesses.add(new ProcessInterval(curr.name, startTime,curr.finishTime));
+                    updateStarvationSolver(priorityQueue, cumulative);
+                    while (!arrivalPriorityQueue.isEmpty()) {
+                        Process p = arrivalPriorityQueue.peek();
+                        if(p.arrivalTime <= cumulative){
+                            priorityQueue.add(p);
+                            arrivalPriorityQueue.poll();
+                        }
+                        else {
+                            break;
+                        }
+                    }
+
                 }
 
             }
             else{
                 priorityQueue.add(arrivalPriorityQueue.poll());
             }
+
         }
         while (!priorityQueue.isEmpty()){
-            Process curr = priorityQueue.peek();
+            Process curr = priorityQueue.poll();
             curr.finishTime = cumulative + curr.burstTime;
             cumulative += curr.burstTime;
-            temp.add(priorityQueue.poll());
             double startTime = cumulative - curr.burstTime;
             finalProcesses.add(new ProcessInterval(curr.name, startTime,curr.finishTime));
 
@@ -86,6 +115,17 @@ public class PriorityScheduling extends CPUScheduling{
         System.out.println("Process Name" + "       "+"Start Time"+"         "+"End Time");
         for (ProcessInterval p : finalProcesses) {
             p.printProcessInterval();
+        }
+
+    }
+
+    public void updateStarvationSolver(PriorityQueue<Process> readyQueue, double currentTime) {
+        double starvationTime = 20;
+        for(Process process : readyQueue){
+            //check the waiting time of processes in ready queue
+            if(currentTime - process.arrivalTime >= starvationTime) {
+                process.priorityNum--;
+            }
         }
 
     }
