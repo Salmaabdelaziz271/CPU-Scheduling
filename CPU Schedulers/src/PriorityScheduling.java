@@ -42,10 +42,7 @@ public class PriorityScheduling extends CPUScheduling{
                             break;
                         }
                     }
-                    for(Process p: priorityQueue) {
-                        System.out.println(p.name + " " + cumulative);
-                    }
-                    System.out.println("------------------");
+                    
 
                 }
             }
@@ -66,10 +63,7 @@ public class PriorityScheduling extends CPUScheduling{
                         break;
                     }
                 }
-                for(Process p: priorityQueue) {
-                    System.out.println(p.name + " " + cumulative);
-                }
-                System.out.println("------------------");
+                
 
                 while (!priorityQueue.isEmpty()){
                     Process curr = priorityQueue.poll();
